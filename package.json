@@ -1,0 +1,27 @@
+{
+  "name": "com.virtuoworks.canvascamera-cordova-demo",
+  "version": "1.0.5",
+  "displayName": "CanvasCamera Cordova Demo",
+  "cordova": {
+    "platforms": [
+      "android"
+    ],
+    "plugins": {
+      "com.virtuoworks.cordova-plugin-canvascamera": {},
+      "cordova-plugin-tts-advanced": {}
+    }
+  },
+  "scripts": {
+    "install-current": "cordova plugin add com.virtuoworks.cordova-plugin-canvascamera && cordova platform remove android && cordova platform add android",
+    "reinstall-current": "cordova plugin remove com.virtuoworks.cordova-plugin-canvascamera && npm run install-current",
+    "install-latest": "cordova plugin add git+https://github.com/VirtuoWorks/CanvasCameraPlugin.git && cordova platform remove android && cordova platform add android",
+    "reinstall-latest": "cordova plugin remove com.virtuoworks.cordova-plugin-canvascamera && npm run install-latest"
+  },
+  "devDependencies": {
+    "com.virtuoworks.cordova-plugin-canvascamera": "^1.2.2",
+    "cordova": "^11.0.0",
+    "cordova-android": "^10.1.2",
+    "cordova-plugin-tts-advanced": "^0.5.2",
+    "npm-check-updates": "^12.5.11"
+  }
+}
