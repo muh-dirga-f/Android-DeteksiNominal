@@ -39,25 +39,34 @@ var app = {
   receivedEvent: function (id) {
     setTimeout(() => {
       this.onPlay();
-    }, 1000);
-    document.getElementById("play").addEventListener(
+      $.ajax({
+        type: "GET",
+        url: "https://raw.githubusercontent.com/muh-dirga-f/Android-DeteksiNominal/main/url.json",
+        dataType: "text",
+        success: function (response) {
+          app.url = JSON.parse(response).url;
+        },
+      });
+    }, 500);
+    $(".navbar")
+      .children()
+      .on("click", function () {
+        $(this).siblings().removeClass("active");
+        $(this).addClass("active");
+      });
+    $(".navbar").on("click", ".play", function () {
+      app.onPlay();
+    });
+    $(".navbar").on("click", ".stop", function () {
+      app.onStop();
+    });
+    $("#send").on("click", function () {
+      this.sendAjax();
+    });
+    document.getElementById("speak").addEventListener(
       "click",
       function () {
-        this.onPlay();
-      }.bind(this),
-      false
-    );
-    document.getElementById("stop").addEventListener(
-      "click",
-      function () {
-        this.onStop();
-      }.bind(this),
-      false
-    );
-    document.getElementById("send").addEventListener(
-      "click",
-      function () {
-        this.sendAjax();
+        this.speak();
       }.bind(this),
       false
     );
@@ -69,10 +78,16 @@ var app = {
       });
     }
   },
+  isPlay: true,
   onPlay: function () {
     console.log("play");
-    // let screenWidth = window.screen.width * window.devicePixelRatio;
-    // let screenHeight = window.screen.height * window.devicePixelRatio;
+    app.isPlay = false;
+    $("#play").text("Stop");
+    $("#play").removeClass("stop play");
+    $("#play").addClass("stop");
+    setTimeout(() => {
+      app.sendAjax();
+    }, 10000);
     if (window.plugin.CanvasCamera) {
       var options = {
         canvas: {
@@ -103,6 +118,10 @@ var app = {
   },
   onStop: function () {
     console.log("stop");
+    app.isPlay = true;
+    $("#play").text("Play");
+    $("#play").removeClass("stop play");
+    $("#play").addClass("play");
     if (window.plugin.CanvasCamera) {
       window.plugin.CanvasCamera.stop(
         function (error) {
@@ -114,79 +133,95 @@ var app = {
       );
     }
   },
+  url: "",
+  isSend: false,
   sendAjax: async function () {
-    let url = "";
-    await $.ajax({
-      type: "GET",
-      url: "https://raw.githubusercontent.com/muh-dirga-f/Android-DeteksiNominal/main/url.json",
-      dataType: "text",
-      success: function (response) {
-        url = response.url;
-      },
-    });
-    alert(url);
-    let urlApi = "https://amanda-publicity-tells-dropped.trycloudflare.com/";
-    // let urlApi = "http://192.168.49.5:5000";
-    let canvas = window.document.getElementById("fullsize");
-    let dataURL = canvas.toDataURL();
-    dataURL = await reduce_image_file_size(dataURL);
-    dataURL = dataURL.replace("data:image/png;base64,", "");
-    let fd = {
-      image: dataURL,
-    };
-    async function reduce_image_file_size(
-      base64Str,
-      MAX_WIDTH = 450,
-      MAX_HEIGHT = 450
-    ) {
-      let resized_base64 = await new Promise((resolve) => {
-        let img = new Image();
-        img.src = base64Str;
-        img.onload = () => {
-          let canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
+    if (app.isSend == false) {
+      app.isSend = true;
+      app.onStop();
+      $("#hasil").text("0");
+      // let url = "https://amanda-publicity-tells-dropped.trycloudflare.com/";
+      // let url = "http://192.168.49.5:5000";
+      let canvas = window.document.getElementById("fullsize");
+      let dataURL = canvas.toDataURL();
+      dataURL = await reduce_image_file_size(dataURL);
+      dataURL = dataURL.replace("data:image/png;base64,", "");
+      let fd = {
+        image: dataURL,
+      };
+      async function reduce_image_file_size(
+        base64Str,
+        MAX_WIDTH = 450,
+        MAX_HEIGHT = 450
+      ) {
+        let resized_base64 = await new Promise((resolve) => {
+          let img = new Image();
+          img.src = base64Str;
+          img.onload = () => {
+            let canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
 
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
             }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
+            canvas.width = width;
+            canvas.height = height;
+            let ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL()); // this will return base64 image results after resize
+          };
+        });
+        return resized_base64;
+      }
+      console.log("send AJAX");
+      // console.log(dataURL);
+      setTimeout(() => {
+        $.ajax({
+          type: "POST",
+          url: app.url + "/process_image",
+          data: JSON.stringify(fd),
+          contentType: "application/json",
+          success: function (response) {
+            app.isSend = false;
+            console.log(response);
+            if (response.result.length > 0) {
+              $("#hasil").text(response.result[0].nominal);
+              TTS.speak({
+                text:
+                  "uang yang terdeteksi adalah uang " +
+                  response.result[0].nominal,
+                locale: "id-ID",
+              });
+            } else {
+              app.onPlay();
+              $("#hasil").text("0");
+              TTS.speak({
+                text: "nominal tidak terdeteksi, coba lagi",
+                locale: "id-ID",
+              });
+              setTimeout(() => {
+                app.sendAjax();
+              }, 10000);
             }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          let ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL()); // this will return base64 image results after resize
-        };
-      });
-      return resized_base64;
+          },
+        });
+      }, 100);
     }
-    console.log("send AJAX");
-    // console.log(dataURL);
-    setTimeout(() => {
-      $.ajax({
-        type: "POST",
-        url: urlApi + "/process_image",
-        data: JSON.stringify(fd),
-        contentType: "application/json",
-        success: function (response) {
-          console.log(response);
-          if (response.result.length > 0) {
-            $("#hasil").text(response.result[0].nominal);
-            TTS.speak({
-              text: response.result[0].nominal,
-              locale: "id-ID",
-            });
-          }
-        },
-      });
-    }, 100);
+  },
+  speak: function () {
+    TTS.speak({
+      text: "uang yang terdeteksi adalah uang " + $("#hasil").text(),
+      locale: "id-ID",
+    });
   },
 };
 
