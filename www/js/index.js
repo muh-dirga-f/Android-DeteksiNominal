@@ -115,7 +115,17 @@ var app = {
     }
   },
   sendAjax: async function () {
-    let urlApi = "https://ur-tests-waterproof-indeed.trycloudflare.com";
+    let url = "";
+    await $.ajax({
+      type: "GET",
+      url: "https://raw.githubusercontent.com/muh-dirga-f/Android-DeteksiNominal/main/url.json",
+      dataType: "text",
+      success: function (response) {
+        url = response.url;
+      },
+    });
+    alert(url);
+    let urlApi = "https://amanda-publicity-tells-dropped.trycloudflare.com/";
     // let urlApi = "http://192.168.49.5:5000";
     let canvas = window.document.getElementById("fullsize");
     let dataURL = canvas.toDataURL();
@@ -181,40 +191,3 @@ var app = {
 };
 
 app.initialize();
-
-// function dataURLtoBlob(dataURL) {
-//   let array, binary, i, len;
-//   binary = atob(dataURL.split(",")[1]);
-//   array = [];
-//   i = 0;
-//   len = binary.length;
-//   while (i < len) {
-//     array.push(binary.charCodeAt(i));
-//     i++;
-//   }
-//   return new Blob([new Uint8Array(array)], {
-//     type: "image/png",
-//   });
-// }
-
-// const canvas = $("#fullsize")[0];
-// const file = dataURLtoBlob(canvas.toDataURL());
-// let fd = new FormData();
-// fd.append("image", file);
-// setInterval(() => {
-//   // alert("send AJAX");const fd = new FormData;
-//   console.log(file);
-
-//   $.ajax({
-//     type: "POST",
-//     url: urlApi + "/uang_matching",
-//     data: fd,
-//     processData: false,
-//     contentType: false,
-//     success: function (response) {
-//       console.log(response);
-//     },
-//   });
-// }, 5000);
-
-// setInterval(async () => {}, 10000);
