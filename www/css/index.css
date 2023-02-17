@@ -17,8 +17,8 @@ body {
 }
 
 .navbar {
-  background-color: #333;
-  color: white;
+  background-color: #ecf2f6;
+  color: rgb(0, 0, 0);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -26,15 +26,7 @@ body {
 }
 
 .navbar a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 20px;
   padding: 10px;
-}
-
-.navbar a.active {
-  background-color: #00bcd4;
 }
 
 .raster {

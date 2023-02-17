@@ -48,12 +48,6 @@ var app = {
         },
       });
     }, 500);
-    $(".navbar")
-      .children()
-      .on("click", function () {
-        $(this).siblings().removeClass("active");
-        $(this).addClass("active");
-      });
     $(".navbar").on("click", ".play", function () {
       app.onPlay();
     });
@@ -61,15 +55,11 @@ var app = {
       app.onStop();
     });
     $("#send").on("click", function () {
-      this.sendAjax();
+      app.sendAjax();
     });
-    document.getElementById("speak").addEventListener(
-      "click",
-      function () {
-        this.speak();
-      }.bind(this),
-      false
-    );
+    $("#speak").on("click", function () {
+      app.speak();
+    });
 
     if (window.plugin.CanvasCamera) {
       window.plugin.CanvasCamera.initialize({
@@ -82,7 +72,7 @@ var app = {
   onPlay: function () {
     console.log("play");
     app.isPlay = false;
-    $("#play").text("Stop");
+    $("#play img").prop("src", "assets/stop-outline.svg");
     $("#play").removeClass("stop play");
     $("#play").addClass("stop");
     setTimeout(() => {
@@ -119,7 +109,7 @@ var app = {
   onStop: function () {
     console.log("stop");
     app.isPlay = true;
-    $("#play").text("Play");
+    $("#play img").prop("src", "assets/play-outline.svg");
     $("#play").removeClass("stop play");
     $("#play").addClass("play");
     if (window.plugin.CanvasCamera) {

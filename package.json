@@ -8,7 +8,8 @@
     ],
     "plugins": {
       "com.virtuoworks.cordova-plugin-canvascamera": {},
-      "cordova-plugin-tts-advanced": {}
+      "cordova-plugin-tts-advanced": {},
+      "cordova-plugin-splashscreen": {}
     }
   },
   "scripts": {
@@ -21,6 +22,7 @@
     "com.virtuoworks.cordova-plugin-canvascamera": "^1.2.2",
     "cordova": "^11.0.0",
     "cordova-android": "^10.1.2",
+    "cordova-plugin-splashscreen": "^6.0.2",
     "cordova-plugin-tts-advanced": "^0.5.2",
     "npm-check-updates": "^12.5.11"
   }

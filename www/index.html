@@ -14,7 +14,7 @@
       content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width"
     />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
-    <title>Canvas Camera Demo</title>
+    <title>Deteksi Nominal Uang</title>
   </head>
   <body>
     <div class="container">
@@ -22,10 +22,17 @@
       <div class="container-hasil">Rp. <span id="hasil">0</span></div>
     </div>
     <nav class="navbar">
-      <a class="speak" id="speak">Speak</a>
-      <a class="stop active" id="play">Stop</a>
-      <a class="send" id="send">Deteksi</a>
+      <a class="speak" id="speak"
+        ><img width="32px" src="assets/mic-outline.svg"
+      /></a>
+      <a class="stop" id="play"
+        ><img width="32px" src="assets/stop-outline.svg"
+      /></a>
+      <a class="send" id="send"
+        ><img width="32px" src="assets/search-outline.svg"
+      /></a>
     </nav>
+
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/jquery-3.6.3.min.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
