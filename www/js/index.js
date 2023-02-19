@@ -1,52 +1,17 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 var app = {
   // Application Constructor
   initialize: function () {
     this.bindEvents();
   },
-  // Bind Event Listeners
-  //
-  // Bind any events that are required on startup. Common events are:
-  // 'load', 'deviceready', 'offline', and 'online'.
   bindEvents: function () {
     document.addEventListener("deviceready", this.onDeviceReady, false);
   },
-  // deviceready Event Handler
-  //
-  // The scope of 'this' is the event. In order to call the 'receivedEvent'
-  // function, we must explicitly call 'app.receivedEvent(...);'
   onDeviceReady: function () {
     app.receivedEvent("deviceready");
   },
-  // Update DOM on a Received Event
   receivedEvent: function (id) {
     setTimeout(() => {
       this.onPlay();
-      $.ajax({
-        type: "GET",
-        url: "https://raw.githubusercontent.com/muh-dirga-f/Android-DeteksiNominal/main/url.json",
-        dataType: "text",
-        success: function (response) {
-          app.url = JSON.parse(response).url;
-        },
-      });
     }, 500);
     $(".navbar").on("click", ".play", function () {
       app.onPlay();
@@ -64,11 +29,12 @@ var app = {
     if (window.plugin.CanvasCamera) {
       window.plugin.CanvasCamera.initialize({
         fullsize: window.document.getElementById("fullsize"),
-        // thumbnail: window.document.getElementById("thumbnail"),
       });
     }
   },
+  url: "",
   isPlay: true,
+  isSend: false,
   onPlay: function () {
     console.log("play");
     app.isPlay = false;
@@ -82,11 +48,11 @@ var app = {
       var options = {
         canvas: {
           width: 480,
-          height: 320,
+          height: 720,
         },
         capture: {
           width: 480,
-          height: 320,
+          height: 720,
         },
         use: "data",
         fps: 1,
@@ -123,15 +89,11 @@ var app = {
       );
     }
   },
-  url: "",
-  isSend: false,
   sendAjax: async function () {
     if (app.isSend == false) {
       app.isSend = true;
       app.onStop();
       $("#hasil").text("0");
-      // let url = "https://amanda-publicity-tells-dropped.trycloudflare.com/";
-      // let url = "http://192.168.49.5:5000";
       let canvas = window.document.getElementById("fullsize");
       let dataURL = canvas.toDataURL();
       dataURL = await reduce_image_file_size(dataURL);
@@ -167,7 +129,7 @@ var app = {
             canvas.height = height;
             let ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL()); // this will return base64 image results after resize
+            resolve(canvas.toDataURL());
           };
         });
         return resized_base64;
@@ -183,12 +145,23 @@ var app = {
           success: function (response) {
             app.isSend = false;
             console.log(response);
+
+            let highest_score = 0;
+            let highest_nominal = "";
+
+            response.result.forEach((item) => {
+              if (item.match_score > highest_score) {
+                highest_score = item.match_score;
+                highest_nominal = item.nominal;
+              }
+            });
+
+            highest_nominal = highest_nominal.slice(0, -2); //disable if debug mode
+
             if (response.result.length > 0) {
-              $("#hasil").text(response.result[0].nominal);
+              $("#hasil").text(highest_nominal);
               TTS.speak({
-                text:
-                  "uang yang terdeteksi adalah uang " +
-                  response.result[0].nominal,
+                text: "uang yang terdeteksi adalah uang " + highest_nominal,
                 locale: "id-ID",
               });
             } else {
@@ -200,7 +173,7 @@ var app = {
               });
               setTimeout(() => {
                 app.sendAjax();
-              }, 10000);
+              }, 15000);
             }
           },
         });
