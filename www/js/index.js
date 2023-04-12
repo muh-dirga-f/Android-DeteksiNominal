@@ -12,6 +12,14 @@ var app = {
   receivedEvent: function (id) {
     setTimeout(() => {
       this.onPlay();
+      $.ajax({
+        type: "GET",
+        url: "https://raw.githubusercontent.com/muh-dirga-f/Android-DeteksiNominal/main/url.json",
+        dataType: "text",
+        success: function (response) {
+          app.url = JSON.parse(response).url;
+        },
+      });
     }, 500);
     $(".navbar").on("click", ".play", function () {
       app.onPlay();
@@ -159,6 +167,7 @@ var app = {
             highest_nominal = highest_nominal.slice(0, -2); //disable if debug mode
 
             if (response.result.length > 0) {
+              $("#akurasi").text(highest_score + "%");
               $("#hasil").text(highest_nominal);
               TTS.speak({
                 text: "uang yang terdeteksi adalah uang " + highest_nominal,
